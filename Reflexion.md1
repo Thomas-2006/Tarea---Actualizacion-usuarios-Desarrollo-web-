@@ -1,0 +1,49 @@
+# Reflexión sobre las mejoras en la aplicación, Tarea: Actualizacion usuarios
+
+## ¿Cómo mejoraría la implementación de `useFetch`?
+
+El hook useFetch es útil para centralizar llamadas a la API, pero considero que se puede mejorar con los siguientes temas:
+
+- **Manejo de errores:** Agregar un estado para errores y mostrar mensajes al usuario.
+- **Control de carga:** Incluir un estado `loading` para mostrar spinners o mensajes de espera.
+- **Parámetros dinámicos:** Permitir pasar opciones como método (`GET`, `POST`, etc.) y headers.
+- **Reutilización:** Separar lógica de `GET` y `POST` en funciones auxiliares para mayor claridad.
+
+Una versión mejorada podría verse así:
+
+```js
+function useFetch(url, options = {}) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    setLoading(true);
+    fetch(url, options)
+      .then(res => res.json())
+      .then(setData)
+      .catch(setError)
+      .finally(() => setLoading(false));
+  }, [url]);
+
+  return { data, loading, error };
+}
+
+## En el form de edición/creación de post, que hacemos para poder actualizar el estado de los datos de envio para no tener que manejar cada uno de los datos de manera individual?
+
+Considero que una opcion para actualizar el estado del formulario sin tener que manejar cada campo individualmente es que en lugar de tener un useState por cada campo (title, body, userId, etc.), usamos un solo estado con un objeto, por ejemplo:
+
+const [formData, setFormData] = useState({
+  title: '',
+  body: '',
+  userId: ''
+});
+
+Luego se tendria que actualizar con una funcion generica:
+
+const handleChange = (e) => {
+  const { name, value } = e.target;
+  setFormData(prev => ({ ...prev, [name]: value }));
+};
+
+# Esto hace que el codigo sea mucho mas limpio, adaptable y fácil de mantener, especialmente si el formulario crece.
